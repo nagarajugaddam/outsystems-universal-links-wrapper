@@ -1,0 +1,12 @@
+{
+  "name": "outsystems-universal-links-wrapper",
+  "version": "1.0.0",
+  "description": "Wrapper for cordova-universal-links-plugin for OutSystems",
+  "cordova": {
+    "id": "outsystems-universal-links-wrapper",
+    "platforms": ["android", "ios"]
+  },
+  "keywords": ["cordova", "universal-links", "outsystems"],
+  "author": "Nagaraju Gaddam",
+  "license": "MIT"
+}
