@@ -1,0 +1,41 @@
+<plugin id="outsystems-universal-links-wrapper" version="1.0.0"
+        xmlns="http://apache.org/cordova/ns/plugins/1.0"
+        xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <name>OutSystems Universal Links Wrapper</name>
+    <description>Wrapper to inject universal link config for OutSystems</description>
+    <license>MIT</license>
+
+    <!-- Pull the actual implementation plugin -->
+    <dependency id="cordova-universal-links-plugin"
+                url="https://github.com/GEDYSIntraWare/cordova-universal-links-plugin.git" />
+
+    <!-- Build-time variables you’ll pass from OutSystems -->
+    <variable name="UL_HOST"   default="example.com" />
+    <variable name="UL_SCHEME" default="https" />
+    <variable name="UL_EVENT"  default="ul_deeplink" />
+    <!-- UL_PATHS should be a raw XML snippet of one or more <path url="..."/> -->
+    <variable name="UL_PATHS"  default="<path url='/*'/>" />
+
+    <!-- Inject into config.xml for Android -->
+    <platform name="android">
+        <config-file target="config.xml" parent="/*">
+            <universal-links>
+                <host name="$UL_HOST" scheme="$UL_SCHEME" event="$UL_EVENT">
+                    $UL_PATHS
+                </host>
+            </universal-links>
+        </config-file>
+    </platform>
+
+    <!-- Inject into config.xml for iOS -->
+    <platform name="ios">
+        <config-file target="config.xml" parent="/*">
+            <universal-links>
+                <host name="$UL_HOST" scheme="$UL_SCHEME" event="$UL_EVENT">
+                    $UL_PATHS
+                </host>
+            </universal-links>
+        </config-file>
+    </platform>
+</plugin>
