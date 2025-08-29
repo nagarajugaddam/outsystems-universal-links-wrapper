@@ -14,25 +14,23 @@
     <variable name="UL_EVENT"  default="ul_deeplink" />
     <variable name="UL_PATHS"  default="campaign/*,campaign" />
 
-    <platform name="android">
-        <config-file target="config.xml" parent="/*">
+   <platform name="android">
+          <config-file target="config.xml" parent="/*">
             <universal-links>
-                <host name="$UL_HOST" scheme="$UL_SCHEME" event="$UL_EVENT">
-                    <!-- The UL_PATHS variable should be a comma-separated list of paths, e.g., "campaign/*,campaign" -->
-                    <path url="$UL_PATHS" />
-                </host>
+              <host name="$UL_HOST" scheme="$UL_SCHEME" event="$UL_EVENT">
+                $UL_PATHS
+              </host>
             </universal-links>
-        </config-file>
-    </platform>
+          </config-file>
+</platform>
 
-    <platform name="ios">
-        <config-file target="config.xml" parent="/*">
+<platform name="ios">
+          <config-file target="config.xml" parent="/*">
             <universal-links>
-                <host name="$UL_HOST" scheme="$UL_SCHEME" event="$UL_EVENT">
-                    <path url="campaign/*" />
-                    <path url="campaign" />
-                </host>
+              <host name="$UL_HOST" scheme="$UL_SCHEME" event="$UL_EVENT">
+                $UL_PATHS
+              </host>
             </universal-links>
-        </config-file>
-    </platform>
+          </config-file>
+</platform>
 </plugin>
