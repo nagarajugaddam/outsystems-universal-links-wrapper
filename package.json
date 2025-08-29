@@ -1,6 +1,6 @@
 {
   "name": "outsystems-universal-links-wrapper",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Wrapper for cordova-universal-links-plugin for OutSystems",
   "cordova": {
     "id": "outsystems-universal-links-wrapper",
