@@ -21,10 +21,11 @@ module.exports = function(context) {
     existing.forEach(e => etree.getroot().remove(e));
 
     // Add new universal-links
-    const ulHost = context.opts.pluginVariables.UL_HOST || 'myamu-dev.apus.edu';
-    const ulScheme = context.opts.pluginVariables.UL_SCHEME || 'https';
-    const ulEvent = context.opts.pluginVariables.UL_EVENT || 'ul_deeplink';
-    const ulPaths = context.opts.pluginVariables.UL_PATHS || "<path url='/campaign/*'/><path url='/campaign'/>";
+    const pluginVars = context.opts.pluginVariables || {};
+    const ulHost = pluginVars.UL_HOST || 'myamu-dev.apus.edu';
+    const ulScheme = pluginVars.UL_SCHEME || 'https';
+    const ulEvent = pluginVars.UL_EVENT || 'ul_deeplink';
+    const ulPaths = pluginVars.UL_PATHS || "<path url='/campaign/*'/><path url='/campaign'/>";
 
     const ulElement = et.Element('universal-links');
     const hostElement = et.SubElement(ulElement, 'host', { name: ulHost, scheme: ulScheme, event: ulEvent });
