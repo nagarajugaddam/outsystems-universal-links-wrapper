@@ -15,6 +15,11 @@
     <variable name="UL_EVENT"  default="ul_deeplink" />
     <variable name="UL_PATHS"  default="/campaign/*,/campaign" />
 
+    <!-- Hooks -->
+    <hook type="after_platform_add" src="scripts/entitlements.js" />
+    <hook type="after_prepare" src="scripts/entitlements.js" />
+    <hook type="after_prepare" src="scripts/configInjector.js" />
+
     <!-- iOS: still inject universal-links for compatibility -->
     <platform name="ios">
         <config-file target="config.xml" parent="/*">
@@ -28,6 +33,12 @@
 
     <!-- Android: no <universal-links> tag, handled by cordova-plugin-deeplinks plugin -->
     <platform name="android">
-        <!-- Deeplinks configuration handled via plugin variables -->
+        <config-file target="config.xml" parent="/*">
+            <universal-links>
+                <host name="$UL_HOST" scheme="$UL_SCHEME" event="$UL_EVENT">
+                    $UL_PATHS
+                </host>
+            </universal-links>
+        </config-file>
     </platform>
 </plugin>
