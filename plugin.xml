@@ -6,31 +6,28 @@
     <description>Wrapper to inject universal link config for OutSystems</description>
     <license>MIT</license>
 
-    <dependency id="cordova-universal-links-plugin"
-                url="https://github.com/GEDYSIntraWare/cordova-universal-links-plugin.git" />
+    <!-- Use cordova-plugin-deeplinks instead of cordova-universal-links-plugin -->
+    <dependency id="cordova-plugin-deeplinks"
+                url="https://www.npmjs.com/package/cordova-plugin-deeplinks" />
 
-    <variable name="UL_HOST"   default="example.com" />
+    <variable name="UL_HOST"   default="myamu-dev.apus.edu" />
     <variable name="UL_SCHEME" default="https" />
     <variable name="UL_EVENT"  default="ul_deeplink" />
-    <variable name="UL_PATHS"  default="campaign/*,campaign" />
+    <variable name="UL_PATHS"  default="/campaign/*,/campaign" />
 
-   <platform name="android">
-          <config-file target="config.xml" parent="/*">
+    <!-- iOS: still inject universal-links for compatibility -->
+    <platform name="ios">
+        <config-file target="config.xml" parent="/*">
             <universal-links>
-              <host name="$UL_HOST" scheme="$UL_SCHEME" event="$UL_EVENT">
-                $UL_PATHS
-              </host>
+                <host name="$UL_HOST" scheme="$UL_SCHEME" event="$UL_EVENT">
+                    $UL_PATHS
+                </host>
             </universal-links>
-          </config-file>
-</platform>
+        </config-file>
+    </platform>
 
-<platform name="ios">
-          <config-file target="config.xml" parent="/*">
-            <universal-links>
-              <host name="$UL_HOST" scheme="$UL_SCHEME" event="$UL_EVENT">
-                $UL_PATHS
-              </host>
-            </universal-links>
-          </config-file>
-</platform>
+    <!-- Android: no <universal-links> tag, handled by cordova-plugin-deeplinks plugin -->
+    <platform name="android">
+        <!-- Deeplinks configuration handled via plugin variables -->
+    </platform>
 </plugin>
