@@ -8,7 +8,7 @@
 
     <!-- Use cordova-plugin-deeplinks instead of cordova-universal-links-plugin -->
     <dependency id="cordova-plugin-deeplinks"
-                url="https://github.com/ionic-team/cordova-plugin-deeplinks.git" />
+                url="https://github.com/e-imaxina/cordova-plugin-deeplinks.git" />
 
     <variable name="UL_HOST"   default="myamu-dev.apus.edu" />
     <variable name="UL_SCHEME" default="https" />
