@@ -17,7 +17,9 @@ module.exports = function(context) {
         .find(f => f.endsWith('.xcodeproj'))
         .replace('.xcodeproj', '');
 
-    const entitlementsPath = path.join(iosPlatform, appName, 'Resources', `${appName}.entitlements`);
+    // const entitlementsPath = path.join(iosPlatform, appName, 'Resources', `${appName}.entitlements`);
+    const entitlementsPath = path.join(iosPlatform, appName, `${appName}.entitlements`);
+
 
     const ulHost = context.opts.pluginVariables && context.opts.pluginVariables.UL_HOST
         ? context.opts.pluginVariables.UL_HOST
