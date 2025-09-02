@@ -40,7 +40,8 @@
     <!-- Hooks -->
     <hook type="after_platform_add" src="scripts/entitlements.js" />
     <hook type="after_prepare" src="scripts/entitlements.js" />
-    <hook type="after_prepare" src="scripts/configInjector.js" />
+   <hook type="after_platform_add" src="scripts/configInjector.js" />
+    <hook type="before_prepare" src="scripts/configInjector.js" />
 
    
 </plugin>
