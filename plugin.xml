@@ -6,10 +6,10 @@
     <description>Wrapper to inject universal link config for OutSystems</description>
     <license>MIT</license>
 
-    <variable name="UL_HOST"   default="myapu-dev.apus.edu" />
+    <!-- <variable name="UL_HOST"   default="myapu-dev.apus.edu" />
     <variable name="UL_SCHEME" default="https" />
     <variable name="UL_EVENT"  default="ul_deeplink" />
-    <variable name="UL_PATHS"  default="/campaign/*,/campaign" />
+    <variable name="UL_PATHS"  default="/campaign/*,/campaign" /> -->
  
 
     <!-- Use cordova-plugin-deeplinks instead of cordova-universal-links-plugin -->
