@@ -31,7 +31,7 @@
     </platform> -->
  
  
-    <!-- iOS: still inject universal-links for compatibility -->
+    <!-- iOS:  injects universal-links for only for ios -->
     <platform name="ios">
         <config-file target="config.xml" parent="/*">
             <universal-links>
@@ -43,8 +43,8 @@
         </config-file>
     </platform>
 
-    <!-- Android: no <universal-links> tag, handled by cordova-plugin-deeplinks plugin -->
-   <platform name="android">
+    <!-- Android: no <universal-links> tag, handled by cordova-plugin-deeplinks plugin (not working with this xml) -->
+   <!-- <platform name="android">
         <config-file target="config.xml" parent="/*">
             <universal-links>
                 <host event="ul_deeplink" name="myamu-dev.apus.edu" scheme="https">
@@ -53,7 +53,22 @@
                 </host>
             </universal-links>
         </config-file>
-    </platform>
+    </platform> -->
+
+    <!-- <platform name="android">
+        <config-file target="AndroidManifest.xml" parent="/manifest/application">
+            <activity android:name="com.eimaxina.cordova.deeplinks.DeepLinkActivity" android:exported="true">
+                <intent-filter android:autoVerify="true">
+                    <action android:name="android.intent.action.VIEW" />
+                    <category android:name="android.intent.category.DEFAULT" />
+                    <category android:name="android.intent.category.BROWSABLE" />
+                    <data android:scheme="https" android:host="myamu-dev.apus.edu" android:pathPrefix="/campaign" />
+                </intent-filter>
+            </activity>
+        </config-file>
+    </platform> -->
+
+   
 
 
      <edit-config
@@ -73,6 +88,14 @@
                <string>applinks:myamu-dev.apus.edu</string>
            </array>
     </edit-config>
+
+
+     <platform name="android">
+
+        <hook type="after_platform_add" src="scripts/configInjector.js" />
+        <hook type="before_prepare" src="scripts/configInjector.js" /> 
+
+    </platform>
 
     <!-- Hooks -->
     <!-- <hook type="after_platform_add" src="scripts/entitlements.js" />
