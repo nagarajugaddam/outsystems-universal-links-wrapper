@@ -2,7 +2,7 @@
         xmlns="http://apache.org/cordova/ns/plugins/1.0"
         xmlns:android="http://schemas.android.com/apk/res/android">
 
-     <variable name="UL_HOST" />
+     <variable name="UL_HOST"  />
 
     <name>OutSystems Universal Links Wrapper</name>
     <description>Wrapper to inject universal link config for OutSystems</description>
@@ -55,10 +55,12 @@
     </platform> -->
 
     <!-- Hooks -->
-    <hook type="after_platform_add" src="scripts/entitlements.js" />
-    <hook type="after_prepare" src="scripts/entitlements.js" />
+    <!-- <hook type="after_platform_add" src="scripts/entitlements.js" />
+    <hook type="after_prepare" src="scripts/entitlements.js" /> -->
     <hook type="after_platform_add" src="scripts/configInjector.js" />
     <hook type="before_prepare" src="scripts/configInjector.js" />
+    <hook type="before_prepare" src="scripts/appDomainInjector_ios.js" />
+
 
    
 </plugin>
