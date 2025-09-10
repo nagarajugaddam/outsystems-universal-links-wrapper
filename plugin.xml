@@ -2,7 +2,6 @@
         xmlns="http://apache.org/cordova/ns/plugins/1.0"
         xmlns:android="http://schemas.android.com/apk/res/android">
 
-     <variable name="UL_HOST"  />
 
     <name>OutSystems Universal Links Wrapper</name>
     <description>Wrapper to inject universal link config for OutSystems</description>
