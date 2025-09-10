@@ -2,15 +2,12 @@
         xmlns="http://apache.org/cordova/ns/plugins/1.0"
         xmlns:android="http://schemas.android.com/apk/res/android">
 
+     <variable name="UL_HOST" />
+
     <name>OutSystems Universal Links Wrapper</name>
     <description>Wrapper to inject universal link config for OutSystems</description>
     <license>MIT</license>
 
-    <!-- <variable name="UL_HOST"   default="myapu-dev.apus.edu" />
-    <variable name="UL_SCHEME" default="https" />
-    <variable name="UL_EVENT"  default="ul_deeplink" />
-    <variable name="UL_PATHS"  default="/campaign/*,/campaign" /> -->
- 
 
     <!-- Use cordova-plugin-deeplinks instead of cordova-universal-links-plugin -->
     <dependency id="cordova-plugin-deeplinks"
@@ -47,7 +44,7 @@
     </platform> -->
 
     <!-- Android: no <universal-links> tag, handled by cordova-plugin-deeplinks plugin -->
-    <platform name="android">
+   <!-- <platform name="android">
         <config-file target="config.xml" parent="/*">
             <universal-links>
                 <host name="$UL_HOST" scheme="$UL_SCHEME" event="$UL_EVENT">
