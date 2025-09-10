@@ -12,7 +12,7 @@
     <dependency id="cordova-plugin-deeplinks"
                 url="https://github.com/e-imaxina/cordova-plugin-deeplinks.git" />
 
-    <platform name="ios">   
+    
     <!-- <edit-config
            file="**/Entitlements-Release.plist"
            mode="merge"
@@ -29,32 +29,15 @@
            </array>
     </edit-config>
     </platform> -->
-
-     <edit-config
-           file="**/Entitlements-Release.plist"
-           mode="merge"
-           target="com.apple.developer.associated-domains">
-           <array>
-               <string>applinks:myamu-dev.apus.edu</string>
-           </array>
-       </edit-config>        <edit-config
-           file="**/Entitlements-Debug.plist"
-           mode="merge"
-           target="com.apple.developer.associated-domains">
-           <array>
-               <string>applinks:myamu-dev.apus.edu</string>
-           </array>
-    </edit-config>
-    </platform>
  
  
     <!-- iOS: still inject universal-links for compatibility -->
     <platform name="ios">
         <config-file target="config.xml" parent="/*">
             <universal-links>
-                <host name="myamu-dev.apus.edu" scheme="https" event="app_deeplink">
-                    <path url='/campaign/*'/>
-                    <path url='/campaign'/>
+                <host event="ul_deeplink" name="myamu-dev.apus.edu" scheme="https">
+                    <path url="/campaign/*" />
+                    <path url="/campaign" />
                 </host>
             </universal-links>
         </config-file>
@@ -64,13 +47,32 @@
    <platform name="android">
         <config-file target="config.xml" parent="/*">
             <universal-links>
-                <host name="myamu-dev.apus.edu" scheme="https" event="app_deeplink">
-                    <path url='/campaign/*'/>
-                    <path url='/campaign'/>
+                <host event="ul_deeplink" name="myamu-dev.apus.edu" scheme="https">
+                    <path url="/campaign/*" />
+                    <path url="/campaign" />
                 </host>
             </universal-links>
         </config-file>
     </platform>
+
+
+     <edit-config
+           file="**/Entitlements-Release.plist"
+           mode="merge"
+           target="com.apple.developer.associated-domains">
+           <array>
+               <string>applinks:myamu-dev.apus.edu</string>
+           </array>
+       </edit-config>        
+       
+    <edit-config
+           file="**/Entitlements-Debug.plist"
+           mode="merge"
+           target="com.apple.developer.associated-domains">
+           <array>
+               <string>applinks:myamu-dev.apus.edu</string>
+           </array>
+    </edit-config>
 
     <!-- Hooks -->
     <!-- <hook type="after_platform_add" src="scripts/entitlements.js" />
