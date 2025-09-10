@@ -23,7 +23,7 @@ module.exports = function(context) {
 
     const ulHost = context.opts.pluginVariables && context.opts.pluginVariables.UL_HOST
         ? context.opts.pluginVariables.UL_HOST
-        : 'myamu-dev.apus.edu';
+        : '';
 
     let entitlements = {};
 

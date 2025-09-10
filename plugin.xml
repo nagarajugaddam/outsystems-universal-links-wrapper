@@ -16,7 +16,25 @@
     <dependency id="cordova-plugin-deeplinks"
                 url="https://github.com/e-imaxina/cordova-plugin-deeplinks.git" />
 
-    
+    <platform name="ios">   
+    <edit-config
+           file="**/Entitlements-Release.plist"
+           mode="merge"
+           target="com.apple.developer.associated-domains">
+           <array>
+               <string>applinks:myamu-dev.apus.edu</string>
+           </array>
+       </edit-config>        <edit-config
+           file="**/Entitlements-Debug.plist"
+           mode="merge"
+           target="com.apple.developer.associated-domains">
+           <array>
+               <string>applinks:myamu-dev.apus.edu</string>
+           </array>
+    </edit-config>
+    </platform>
+ 
+ 
     <!-- iOS: still inject universal-links for compatibility -->
     <!-- <platform name="ios">
         <config-file target="config.xml" parent="/*">

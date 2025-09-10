@@ -105,7 +105,7 @@ module.exports = function(context) {
       return defaultValue;
     }
 
-    const ulHost = pick('UL_HOST', 'myapu-dev.apus.edu');
+    const ulHost = pick('UL_HOST', '');
     const ulScheme = pick('UL_SCHEME', 'https');
     const ulEvent = pick('UL_EVENT', 'ul_deeplink');
     const ulPathsRaw = pick('UL_PATHS', ['/campaign/*','/campaign']);
