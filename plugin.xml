@@ -22,14 +22,14 @@
            mode="merge"
            target="com.apple.developer.associated-domains">
            <array>
-               <string>applinks:myamu-dev.apus.edu</string>
+               <string>applinks:$UL_HOST</string>
            </array>
        </edit-config>        <edit-config
            file="**/Entitlements-Debug.plist"
            mode="merge"
            target="com.apple.developer.associated-domains">
            <array>
-               <string>applinks:myamu-dev.apus.edu</string>
+               <string>applinks:$UL_HOST</string>
            </array>
     </edit-config>
     </platform>
@@ -47,7 +47,7 @@
     </platform> -->
 
     <!-- Android: no <universal-links> tag, handled by cordova-plugin-deeplinks plugin -->
-    <!-- <platform name="android">
+    <platform name="android">
         <config-file target="config.xml" parent="/*">
             <universal-links>
                 <host name="$UL_HOST" scheme="$UL_SCHEME" event="$UL_EVENT">
