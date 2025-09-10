@@ -13,7 +13,7 @@
                 url="https://github.com/e-imaxina/cordova-plugin-deeplinks.git" />
 
     <platform name="ios">   
-    <edit-config
+    <!-- <edit-config
            file="**/Entitlements-Release.plist"
            mode="merge"
            target="com.apple.developer.associated-domains">
@@ -28,37 +28,56 @@
                <string>applinks:$UL_HOST</string>
            </array>
     </edit-config>
+    </platform> -->
+
+     <edit-config
+           file="**/Entitlements-Release.plist"
+           mode="merge"
+           target="com.apple.developer.associated-domains">
+           <array>
+               <string>applinks:myamu-dev.apus.edu</string>
+           </array>
+       </edit-config>        <edit-config
+           file="**/Entitlements-Debug.plist"
+           mode="merge"
+           target="com.apple.developer.associated-domains">
+           <array>
+               <string>applinks:myamu-dev.apus.edu</string>
+           </array>
+    </edit-config>
     </platform>
  
  
     <!-- iOS: still inject universal-links for compatibility -->
-    <!-- <platform name="ios">
+    <platform name="ios">
         <config-file target="config.xml" parent="/*">
             <universal-links>
-                <host name="$UL_HOST" scheme="$UL_SCHEME" event="$UL_EVENT">
-                    $UL_PATHS
+                <host name="myamu-dev.apus.edu" scheme="https" event="app_deeplink">
+                    <path url='/campaign/*'/>
+                    <path url='/campaign'/>
                 </host>
             </universal-links>
         </config-file>
-    </platform> -->
+    </platform>
 
     <!-- Android: no <universal-links> tag, handled by cordova-plugin-deeplinks plugin -->
-   <!-- <platform name="android">
+   <platform name="android">
         <config-file target="config.xml" parent="/*">
             <universal-links>
-                <host name="$UL_HOST" scheme="$UL_SCHEME" event="$UL_EVENT">
-                    $UL_PATHS
+                <host name="myamu-dev.apus.edu" scheme="https" event="app_deeplink">
+                    <path url='/campaign/*'/>
+                    <path url='/campaign'/>
                 </host>
             </universal-links>
         </config-file>
-    </platform> -->
+    </platform>
 
     <!-- Hooks -->
     <!-- <hook type="after_platform_add" src="scripts/entitlements.js" />
     <hook type="after_prepare" src="scripts/entitlements.js" /> -->
-    <hook type="after_platform_add" src="scripts/configInjector.js" />
-    <hook type="before_prepare" src="scripts/configInjector.js" />
-    <hook type="before_prepare" src="scripts/appDomainInjector_ios.js" />
+    <!-- <hook type="after_platform_add" src="scripts/configInjector.js" />
+    <hook type="before_prepare" src="scripts/configInjector.js" /> -->
+    <!-- <hook type="before_prepare" src="scripts/appDomainInjector_ios.js" /> -->
 
 
    
