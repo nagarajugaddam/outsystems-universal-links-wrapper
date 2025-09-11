@@ -13,23 +13,6 @@
                 url="https://github.com/e-imaxina/cordova-plugin-deeplinks.git" />
 
     
-    <!-- <edit-config
-           file="**/Entitlements-Release.plist"
-           mode="merge"
-           target="com.apple.developer.associated-domains">
-           <array>
-               <string>applinks:$UL_HOST</string>
-           </array>
-       </edit-config>        <edit-config
-           file="**/Entitlements-Debug.plist"
-           mode="merge"
-           target="com.apple.developer.associated-domains">
-           <array>
-               <string>applinks:$UL_HOST</string>
-           </array>
-    </edit-config>
-    </platform> -->
- 
  
     <!-- iOS:  injects universal-links for only for ios -->
     <platform name="ios">
@@ -69,34 +52,49 @@
     </platform> -->
 
    
-
-
-     <edit-config
+    <!-- <edit-config
            file="**/Entitlements-Release.plist"
            mode="merge"
            target="com.apple.developer.associated-domains">
            <array>
-               <string>applinks:myamu-dev.apus.edu</string>
+               <string>applinks:$UL_HOST</string>
            </array>
-       </edit-config>        
-       
-    <edit-config
+       </edit-config>        <edit-config
            file="**/Entitlements-Debug.plist"
            mode="merge"
            target="com.apple.developer.associated-domains">
            <array>
-               <string>applinks:myamu-dev.apus.edu</string>
+               <string>applinks:$UL_HOST</string>
            </array>
-    </edit-config>
+    </edit-config> -->
 
-
+ <!-- universal links are not working by  </config-file>-->
      <platform name="android">
-
         <hook type="after_platform_add" src="scripts/configInjector.js" />
         <hook type="before_prepare" src="scripts/configInjector.js" /> 
-
     </platform>
 
+     <platform name="ios">
+        <edit-config
+            file="**/Entitlements-Release.plist"
+            mode="merge"
+            target="com.apple.developer.associated-domains">
+            <array>
+                <string>applinks:myamu-dev.apus.edu</string>
+            </array>
+        </edit-config>        
+        
+        <edit-config
+            file="**/Entitlements-Debug.plist"
+            mode="merge"
+            target="com.apple.developer.associated-domains">
+            <array>
+                <string>applinks:myamu-dev.apus.edu</string>
+            </array>
+        </edit-config>
+    </platform>
+
+   
     <!-- Hooks -->
     <!-- <hook type="after_platform_add" src="scripts/entitlements.js" />
     <hook type="after_prepare" src="scripts/entitlements.js" /> -->
