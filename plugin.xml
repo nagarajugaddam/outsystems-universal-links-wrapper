@@ -18,7 +18,7 @@
     <platform name="ios">
         <config-file target="config.xml" parent="/*">
             <universal-links>
-                <host event="ul_deeplink" name="myamu-dev.apus.edu" scheme="https">
+                <host event="ul_deeplink" name="myamu-stg.apus.edu" scheme="https">
                     <path url="/campaign/*" />
                     <path url="/campaign" />
                 </host>
@@ -30,7 +30,7 @@
             mode="merge"
             target="com.apple.developer.associated-domains">
             <array>
-                <string>applinks:myamu-dev.apus.edu</string>
+                <string>applinks:myamu-stg.apus.edu</string>
             </array>
         </edit-config>        
         
@@ -39,7 +39,7 @@
             mode="merge"
             target="com.apple.developer.associated-domains">
             <array>
-                <string>applinks:myamu-dev.apus.edu</string>
+                <string>applinks:myamu-stg.apus.edu</string>
             </array>
         </edit-config>
 
@@ -91,7 +91,7 @@
      <platform name="android">
         <config-file target="config.xml" parent="/*">
             <universal-links>
-                <host event="ul_deeplink" name="myamu-dev.apus.edu" scheme="https">
+                <host event="ul_deeplink" name="myamu-stg.apus.edu" scheme="https">
                     <path url="/campaign/*" />
                     <path url="/campaign" />
                 </host>
