@@ -18,7 +18,7 @@
     <platform name="ios">
         <config-file target="config.xml" parent="/*">
             <universal-links>
-                <host event="ul_deeplink" name=UL_HOST scheme="https">
+                <host event="ul_deeplink" name=${UL_HOST} scheme="https">
                     <path url="/campaign/*" />
                     <path url="/campaign" />
                 </host>
@@ -30,7 +30,7 @@
             mode="merge"
             target="com.apple.developer.associated-domains">
             <array>
-                <string>applinks:myamu-dev.apus.edu</string>
+                <string>applinks:${UL_HOST}</string>
             </array>
         </edit-config>        
         
@@ -39,7 +39,7 @@
             mode="merge"
             target="com.apple.developer.associated-domains">
             <array>
-                <string>applinks:myamu-dev.apus.edu</string>
+                <string>applinks:${UL_HOST}</string>
             </array>
         </edit-config>
 
