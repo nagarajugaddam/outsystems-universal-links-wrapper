@@ -18,7 +18,7 @@
     <platform name="ios">
         <config-file target="config.xml" parent="/*">
             <universal-links>
-                <host event="ul_deeplink" name="myamu-dev.apus.edu" scheme="https">
+                <host event="ul_deeplink" name=UL_HOST scheme="https">
                     <path url="/campaign/*" />
                     <path url="/campaign" />
                 </host>
