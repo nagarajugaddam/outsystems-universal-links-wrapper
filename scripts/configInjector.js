@@ -118,12 +118,12 @@ module.exports = function(context) {
     const pathsXml = pathsArray.map(p=>`<path url='${p}'/>`).join('');
 
     const block = `
-<universal-links>
-  <host name="${ulHost}" scheme="${ulScheme}" event="${ulEvent}">
-    ${pathsXml}
-  </host>
-</universal-links>
-`;
+    <universal-links>
+      <host name="${ulHost}" scheme="${ulScheme}" event="${ulEvent}">
+        ${pathsXml}
+      </host>
+    </universal-links>
+    `;
 
     let xml = fs.readFileSync(configXml,'utf8');
     if (xml.includes('<universal-links>')) {
