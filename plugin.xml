@@ -16,10 +16,10 @@
  
     <!-- iOS:  injects universal-links for only for ios - working -->
     <platform name="ios">
-        <preference name="UL_HOST" default=" " />
+        <preference name="UL_HOST" default="MISSING_UL_HOST" />
             <config-file target="config.xml" parent="/*">
                 <universal-links>
-                    <host event="ul_deeplink" name="${UL_HOST}" scheme="https">
+                    <host event="ul_deeplink" name="$UL_HOST" scheme="https">
                         <path url="/campaign/*" />
                         <path url="/campaign" />
                     </host>
@@ -31,7 +31,7 @@
                 mode="merge"
                 target="com.apple.developer.associated-domains">
                 <array>
-                    <string>applinks:${UL_HOST}</string>
+                    <string>applinks:$UL_HOST</string>
                 </array>
             </edit-config>        
             
@@ -40,7 +40,7 @@
                 mode="merge"
                 target="com.apple.developer.associated-domains">
                 <array>
-                    <string>applinks:${UL_HOST}</string>
+                    <string>applinks:$UL_HOST</string>
                 </array>
             </edit-config>
     </platform>
