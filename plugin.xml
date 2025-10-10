@@ -29,7 +29,7 @@
             </config-file>
 
             <edit-config
-                file="**/Entitlements-Release.plist"
+                file="**/Entitlements.plist"
                 mode="merge"
                 target="com.apple.developer.associated-domains">
                 <array>
@@ -37,14 +37,14 @@
                 </array>
             </edit-config>        
             
-            <edit-config
+            <!-- <edit-config
                 file="**/Entitlements-Debug.plist"
                 mode="merge"
                 target="com.apple.developer.associated-domains">
                 <array>
                     <string>applinks:$UL_HOST</string>
                 </array>
-            </edit-config>
+            </edit-config> -->
             
     </platform>
 
