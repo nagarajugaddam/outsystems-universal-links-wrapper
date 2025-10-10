@@ -12,16 +12,18 @@
     <dependency id="cordova-plugin-deeplinks"
                 url="https://github.com/e-imaxina/cordova-plugin-deeplinks.git" />
 
-    
+    <preference name="UL_HOST" default="" />
+    <preference name="UL_EVENT" default="" />
+    <preference name="UL_SCHEME" default="" />
+    <preference name="UL_PATHS" default="" />
+        
  
     <!-- iOS:  injects universal-links for only for ios - working -->
     <platform name="ios">
-        <preference name="UL_HOST" default="MISSING_UL_HOST" />
-            <config-file target="config.xml" parent="/*">
+        <config-file target="config.xml" parent="/*">
                 <universal-links>
-                    <host event="ul_deeplink" name="$UL_HOST" scheme="https">
-                        <path url="/campaign/*" />
-                        <path url="/campaign" />
+                    <host event="$UL_EVENT" name="$UL_HOST" scheme="$UL_SCHEME">
+                       $UL_PATHS
                     </host>
                 </universal-links>
             </config-file>
@@ -43,6 +45,7 @@
                     <string>applinks:$UL_HOST</string>
                 </array>
             </edit-config>
+            
     </platform>
 
     <!-- Android: no <universal-links> tag, handled by cordova-plugin-deeplinks plugin (not working with this xml) -->
@@ -89,20 +92,16 @@
 
  <!-- universal links are not working by  </config-file>-->
      <platform name="android">
-            <preference name="UL_HOST" default=" " />
             <config-file target="config.xml" parent="/*">
                 <universal-links>
-                    <host event="ul_deeplink" name="${UL_HOST}" scheme="https">
-                        <path url="/campaign/*" />
-                        <path url="/campaign" />
+                     <host event="$UL_EVENT" name="$UL_HOST" scheme="$UL_SCHEME">
+                       $UL_PATHS
                     </host>
                 </universal-links>
             </config-file>
             <hook type="after_platform_add" src="scripts/configInjector.js" />
             <hook type="before_prepare" src="scripts/configInjector.js" /> 
     </platform>
-
-
 
    
     <!-- Hooks -->
