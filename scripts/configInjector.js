@@ -1,67 +1,51 @@
 #!/usr/bin/env node
 const fs = require('fs');
 const path = require('path');
+const { json } = require('stream/consumers');
 
 module.exports = function(context) {
-    // Check if we are on Android
+    // 1. Check if we are on Android (iOS handles this differently usually, but we can do both)
     const platforms = context.opts.platforms || [];
     if (!platforms.includes('android')) {
-        console.log('configInjector: not running on android platform');
         return;
     }
 
-    console.log("configInjector: Running OutSystems DeepLink Config Injector...");
+    console.log("Running OutSystems DeepLink Config Injector...");
 
     const root = context.opts.projectRoot || process.cwd();
     const configXmlPath = path.join(root, 'config.xml');
 
     if (!fs.existsSync(configXmlPath)) {
-        console.error("configInjector: config.xml not found!");
+        console.error("Config : config.xml not found!");
         return;
     }
 
-    // Read config.xml to extract the universal-links values that Cordova already substituted
-    let xmlContent = fs.readFileSync(configXmlPath, 'utf8');
+    // 2. GET VARIABLES FROM OUTSYSTEMS / CLI
+    // This is the magic part. We look at the arguments passed during install.
+    const cliVariables = context.opts.plugin ? context.opts.plugin.pluginVariables : {};
 
-    console.log("configInjector: xmlContent read from config.xml:", xmlContent); 
 
+    console.log("Config : Plugin variables received from CLI:", JSON.stringify(context.opts, null, 2));
     
-    // Extract values from the universal-links block
-    const hostMatch = xmlContent.match(/<host[^>]*name="([^"]+)"[^>]*scheme="([^"]+)"[^>]*event="([^"]+)"/);
-    const pathsMatch = xmlContent.match(/<host[^>]*>([\s\S]*?)<\/host>/);
+    // Fallback: If running via 'cordova prepare', variables might not be in context.opts.plugin
+    // We can try to grab them from process.env if OutSystems sets them there, 
+    // or rely on what is already in config.xml if we are just updating.
     
-    let ulHost = '';
-    let ulScheme = 'https';
-    let ulEvent = 'ul_deeplink';
-    let ulPathsRaw = '';
-    
-    if (hostMatch) {
-        ulHost = hostMatch[1];
-        ulScheme = hostMatch[2];
-        ulEvent = hostMatch[3];
-        console.log(`configInjector: extracted from config.xml - UL_HOST=${ulHost}, UL_SCHEME=${ulScheme}, UL_EVENT=${ulEvent}`);
-    }
-    
-    if (pathsMatch) {
-        ulPathsRaw = pathsMatch[1];
-    }
+    const ulHost = cliVariables['UL_HOST'];
+    const ulScheme = cliVariables['UL_SCHEME'] || 'https';
+    const ulEvent = cliVariables['UL_EVENT'] || 'ul_deeplink';
+    const ulPaths = cliVariables['UL_PATHS'] || '/campaign/*,/campaign'; // Default fallback
 
     if (!ulHost) {
-        console.warn("configInjector: WARNING: UL_HOST was not found in config.xml. Deep linking config might fail.");
-        return;
+        console.warn("Config :  WARNING: UL_HOST variable was not found in plugin variables. Deep linking config might fail.");
+        // If we can't find the variable, we stop to avoid writing "undefined"
+        return; 
     }
 
-    // Parse paths from XML format
-    const pathRegex = /<path\s+url=['"]([^'"]+)['"]/g;
-    let pathMatch;
-    const pathsArray = [];
-    while ((pathMatch = pathRegex.exec(ulPathsRaw)) !== null) {
-        pathsArray.push(pathMatch[1]);
-    }
-
-    const pathsXml = pathsArray.length > 0 
-        ? pathsArray.map(p => `<path url='${p}'/>`).join('\n        ')
-        : `<path url='/campaign/*'/>\n        <path url='/campaign'/>`;
+    // 3. Construct the XML Block
+    // Handle comma-separated paths if multiple are passed
+    const pathsArray = ulPaths.split(',').map(p => p.trim());
+    const pathsXml = pathsArray.map(p => `<path url="${p}" />`).join('\n        ');
 
     const universalLinksBlock = `
     <universal-links>
@@ -70,15 +54,19 @@ module.exports = function(context) {
         </host>
     </universal-links>`;
 
-    // Update config.xml with the reconstructed block
+    // 4. Inject into config.xml
+    let xmlContent = fs.readFileSync(configXmlPath, 'utf8');
+
     if (xmlContent.includes('<universal-links>')) {
-        console.log(`configInjector: Updating <universal-links> for host: ${ulHost}`);
+        // Replace existing block
+        console.log(`Config : Updating <universal-links> for host: ${ulHost}`);
         xmlContent = xmlContent.replace(/<universal-links>[\s\S]*?<\/universal-links>/, universalLinksBlock);
     } else {
-        console.log(`configInjector: Injecting new <universal-links> for host: ${ulHost}`);
+        // Append before widget close
+        console.log(`Config : Injecting new <universal-links> for host: ${ulHost}`);
         xmlContent = xmlContent.replace('</widget>', `${universalLinksBlock}\n</widget>`);
     }
 
     fs.writeFileSync(configXmlPath, xmlContent, 'utf8');
-    console.log("configInjector: config.xml updated successfully with values:", {UL_HOST: ulHost, UL_SCHEME: ulScheme, UL_EVENT: ulEvent, UL_PATHS: pathsArray});
+    console.log("Config : config.xml updated successfully.");
 };

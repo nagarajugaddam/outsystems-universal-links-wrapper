@@ -10,7 +10,8 @@
 
     <!-- Use cordova-plugin-deeplinks instead of cordova-universal-links-plugin -->
     <dependency id="cordova-plugin-deeplinks"
-                url="https://github.com/e-imaxina/cordova-plugin-deeplinks.git" />
+                url="https://github.com/e-imaxina/cordova-plugin-deeplinks.git" UL_HOST="$UL_HOST"
+                UL_SCHEME="$UL_SCHEME" UL_EVENT="$UL_EVENT" UL_PATHS="$UL_PATHS" />
 
     <preference name="UL_HOST" default="" />
     <preference name="UL_EVENT" default="" />
@@ -94,13 +95,13 @@
      <platform name="android">
 
         <!-- Store plugin variables in config.xml for the hook to read -->
-        <config-file target="config.xml" parent="/*">
+        <!-- <config-file target="config.xml" parent="/*">
             <universal-links>
                 <host event="$UL_EVENT" name="$UL_HOST" scheme="$UL_SCHEME">
                     $UL_PATHS
                 </host>
             </universal-links>
-        </config-file>
+        </config-file> -->
 
         <!-- Run the hook after plugin install to update config.xml -->
         <hook type="after_plugin_install" src="scripts/configInjector.js" />
