@@ -71,41 +71,25 @@ module.exports = function(context) {
     // 1) Prefer context.opts.pluginVariables if present
     const pluginVars = context.opts.pluginVariables || (context.opts.plugin && context.opts.plugin.variables) || null;
 
-    // 2) Attempt to load config.env.js from plugin root
+    // 2) Attempt to find plugin_options.json or plugin_options.js anywhere under project root (recursively)
     let fileCfg = null;
     let fileUsed = null;
 
-    const configEnvPath = path.join(__dirname, '..', 'config.env.js');
-    if (fs.existsSync(configEnvPath)) {
-      try {
-        fileCfg = require(configEnvPath);
-        fileUsed = configEnvPath;
-        console.log('configInjector: loaded config from', fileUsed);
-      } catch (e) {
-        console.warn('configInjector: failed to load config.env.js', e && e.message);
-      }
-    } else {
-      console.log('configInjector: config.env.js not found at', configEnvPath);
+    const jsonPath = findFileRecursively(root, 'plugin_options.json', 6);
+    const jsPath = findFileRecursively(root, 'plugin_options.js', 6);
+
+    if (jsonPath) {
+      fileCfg = tryReadJson(jsonPath);
+      fileUsed = jsonPath;
+    } else if (jsPath) {
+      fileCfg = tryReadJsModuleJson(jsPath) || tryReadJson(jsPath); // fallback
+      fileUsed = jsPath;
     }
 
-    // 3) Fallback: Attempt to find plugin_options.json or plugin_options.js anywhere under project root (recursively)
     if (!fileCfg) {
-      const jsonPath = findFileRecursively(root, 'plugin_options.json', 6);
-      const jsPath = findFileRecursively(root, 'plugin_options.js', 6);
-
-      if (jsonPath) {
-        fileCfg = tryReadJson(jsonPath);
-        fileUsed = jsonPath;
-      } else if (jsPath) {
-        fileCfg = tryReadJsModuleJson(jsPath) || tryReadJson(jsPath); // fallback
-        fileUsed = jsPath;
-      }
-
-      if (!fileCfg) {
-        console.log('configInjector: no plugin_options file found under project root (searched recursively).');
-      } else {
-        console.log('configInjector: loaded plugin options from', fileUsed);
-      }
+      console.log('configInjector: no plugin_options file found under project root (searched recursively).');
+    } else {
+      console.log('configInjector: loaded plugin options from', fileUsed);
     }
 
     // 3) environment fallback
