@@ -2,57 +2,6 @@
 const fs = require('fs');
 const path = require('path');
 
-function tryReadJson(p) {
-  try {
-    if (!fs.existsSync(p)) return null;
-    const txt = fs.readFileSync(p, 'utf8');
-    return JSON.parse(txt);
-  } catch (e) {
-    console.warn('configInjector: JSON parse err for', p, e && e.message);
-    return null;
-  }
-}
-
-function tryReadJsModuleJson(p) {
-  // read a .js file that does: module.exports = { ... };
-  try {
-    if (!fs.existsSync(p)) return null;
-    let txt = fs.readFileSync(p, 'utf8').trim();
-    // remove leading "module.exports =" and trailing semicolon if present
-    txt = txt.replace(/^\s*module\.exports\s*=\s*/, '');
-    txt = txt.replace(/;\s*$/, '');
-    // Now try to parse the remainder as JSON
-    return JSON.parse(txt);
-  } catch (e) {
-    console.warn('configInjector: JS->JSON parse err for', p, e && e.message);
-    return null;
-  }
-}
-
-function findFileRecursively(startDir, fileName, maxDepth = 6) {
-  const seen = new Set();
-  function _search(dir, depth) {
-    if (depth > maxDepth) return null;
-    let entries;
-    try { entries = fs.readdirSync(dir); } catch (e) { return null; }
-    for (const ent of entries) {
-      const full = path.join(dir, ent);
-      if (seen.has(full)) continue;
-      seen.add(full);
-      try {
-        const stat = fs.statSync(full);
-        if (stat.isFile() && (ent === fileName)) return full;
-        if (stat.isDirectory()) {
-          const found = _search(full, depth + 1);
-          if (found) return found;
-        }
-      } catch (e) { /* ignore */ }
-    }
-    return null;
-  }
-  return _search(startDir, 0);
-}
-
 module.exports = function(context) {
   try {
     const platforms = context.opts.platforms || [];
@@ -69,30 +18,16 @@ module.exports = function(context) {
     }
 
     // 1) Prefer context.opts.pluginVariables if present
-    const pluginVars = context.opts.pluginVariables || (context.opts.plugin && context.opts.plugin.variables) || null;
+    let pluginVars = context.opts.pluginVariables || (context.opts.plugin && context.opts.plugin.variables) || null;
 
-    // 2) Attempt to find plugin_options.json or plugin_options.js anywhere under project root (recursively)
-    let fileCfg = null;
-    let fileUsed = null;
-
-    const jsonPath = findFileRecursively(root, 'plugin_options.json', 6);
-    const jsPath = findFileRecursively(root, 'plugin_options.js', 6);
-
-    if (jsonPath) {
-      fileCfg = tryReadJson(jsonPath);
-      fileUsed = jsonPath;
-    } else if (jsPath) {
-      fileCfg = tryReadJsModuleJson(jsPath) || tryReadJson(jsPath); // fallback
-      fileUsed = jsPath;
+    // Support array form (as in plugin install variables)
+    if (Array.isArray(pluginVars)) {
+      const obj = {};
+      pluginVars.forEach(v => { if (v.name) obj[v.name] = v.value; });
+      pluginVars = obj;
     }
 
-    if (!fileCfg) {
-      console.log('configInjector: no plugin_options file found under project root (searched recursively).');
-    } else {
-      console.log('configInjector: loaded plugin options from', fileUsed);
-    }
-
-    // 3) environment fallback
+    // 2) environment fallback
     const env = process.env;
 
     function pick(name, defaultValue) {
@@ -100,7 +35,6 @@ module.exports = function(context) {
         if (pluginVars[name] !== undefined && pluginVars[name] !== null) return pluginVars[name];
         if (pluginVars.options && pluginVars.options[name] !== undefined && pluginVars.options[name] !== null) return pluginVars.options[name];
       }
-      if (fileCfg && fileCfg[name] !== undefined && fileCfg[name] !== null) return fileCfg[name];
       if (env[name] !== undefined && env[name] !== null) return env[name];
       return defaultValue;
     }
@@ -135,7 +69,7 @@ module.exports = function(context) {
     }
     fs.writeFileSync(configXml, xml, 'utf8');
 
-    console.log('configInjector: used pluginVars?', !!pluginVars, 'fileUsed:', fileUsed);
+    console.log('configInjector: used pluginVars?', !!pluginVars);
     console.log('configInjector: UL_HOST=' + ulHost, 'UL_PATHS=' + JSON.stringify(pathsArray));
   } catch (err) {
     console.error('configInjector: fatal error', err && err.stack ? err.stack : err);
