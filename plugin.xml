@@ -110,9 +110,10 @@
                     </host>
                 </universal-links>
             </config-file>
+            
 
-            <!-- <hook type="after_platform_add" src="scripts/configInjector.js" />
-            <hook type="before_prepare" src="scripts/configInjector.js" />  -->
+            <hook type="after_platform_add" src="scripts/configInjector.js" />
+            <hook type="before_prepare" src="scripts/configInjector.js" /> 
             
 
             <!-- Hooks commented out - Android deep links now configured via plugin.xml -->
