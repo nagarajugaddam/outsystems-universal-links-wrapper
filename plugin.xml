@@ -92,6 +92,14 @@
 
  <!-- universal links are not working by  </config-file>-->
      <platform name="android">
+
+
+        <!-- Run the hook after plugin install to update config.xml -->
+        <hook type="after_plugin_install" src="scripts/configInjector.js" />
+        
+        <!-- Run before prepare to ensure config.xml is ready for the dependency plugin -->
+        <hook type="before_prepare" src="scripts/configInjector.js" />
+
             <!-- <config-file target="AndroidManifest.xml" parent="/manifest/application">
                 <activity android:name="com.eimaxina.cordova.deeplinks.DeepLinkActivity" android:exported="true">
                     <intent-filter android:autoVerify="true">
@@ -103,17 +111,18 @@
                 </activity>
             </config-file> -->
 
-            <config-file target="config.xml" parent="/*">
+            <!-- <config-file target="config.xml" parent="/*">
                 <universal-links>
                      <host event="$UL_EVENT" name="$UL_HOST" scheme="$UL_SCHEME">
                        $UL_PATHS
                     </host>
                 </universal-links>
-            </config-file>
+            </config-file> -->
 
+            <!-- working -->
 
-            <hook type="after_platform_add" src="scripts/configInjector.js" />
-            <hook type="before_prepare" src="scripts/configInjector.js" /> 
+            <!-- <hook type="after_platform_add" src="scripts/configInjector.js" />
+            <hook type="before_prepare" src="scripts/configInjector.js" />  -->
             
 
             <!-- Hooks commented out - Android deep links now configured via plugin.xml -->
