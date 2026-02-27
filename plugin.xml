@@ -93,6 +93,14 @@
  <!-- universal links are not working by  </config-file>-->
      <platform name="android">
 
+        <!-- Store plugin variables in config.xml for the hook to read -->
+        <config-file target="config.xml" parent="/*">
+            <universal-links>
+                <host event="$UL_EVENT" name="$UL_HOST" scheme="$UL_SCHEME">
+                    $UL_PATHS
+                </host>
+            </universal-links>
+        </config-file>
 
         <!-- Run the hook after plugin install to update config.xml -->
         <hook type="after_plugin_install" src="scripts/configInjector.js" />
