@@ -27,6 +27,19 @@ module.exports = function(context) {
       pluginVars = obj;
     }
 
+    // If pluginVars is still null, try to read from plugin_vars.json
+    if (!pluginVars) {
+      const varsPath = path.join(root, 'plugin_vars.json');
+      if (fs.existsSync(varsPath)) {
+        try {
+          pluginVars = JSON.parse(fs.readFileSync(varsPath, 'utf8'));
+          console.log('configInjector: loaded pluginVars from plugin_vars.json');
+        } catch (e) {
+          console.warn('configInjector: failed to parse plugin_vars.json', e && e.message);
+        }
+      }
+    }
+
     // 2) environment fallback
     const env = process.env;
 

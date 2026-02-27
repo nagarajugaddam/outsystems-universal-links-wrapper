@@ -103,6 +103,7 @@
             <!-- without hooks, launch url is not getting created for android in AndroidManifest.xml -->
             <hook type="after_platform_add" src="scripts/configInjector.js" />
             <hook type="before_prepare" src="scripts/configInjector.js" /> 
+            <hook type="after_plugin_install" src="scripts/savePluginVars.js" />
             
     </platform>
 
