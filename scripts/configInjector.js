@@ -2,83 +2,171 @@
 const fs = require('fs');
 const path = require('path');
 
-module.exports = function(context) {
-    // Check if we are on Android
-    const platforms = context.opts.platforms || [];
-    if (!platforms.includes('android')) {
-        console.log('configInjector: not running on android platform');
-        return;
-    }
+function tryReadJson(p) {
+  try {
+    if (!fs.existsSync(p)) return null;
+    const txt = fs.readFileSync(p, 'utf8');
+    return JSON.parse(txt);
+  } catch (e) {
+    console.warn('configInjector: JSON parse err for', p, e && e.message);
+    return null;
+  }
+}
 
-    console.log("configInjector: Running OutSystems DeepLink Config Injector...");
+function tryReadJsModuleJson(p) {
+  try {
+    if (!fs.existsSync(p)) return null;
+    let txt = fs.readFileSync(p, 'utf8').trim();
+    txt = txt.replace(/^\s*module\.exports\s*=\s*/, '');
+    txt = txt.replace(/;\s*$/, '');
+    return JSON.parse(txt);
+  } catch (e) {
+    console.warn('configInjector: JS->JSON parse err for', p, e && e.message);
+    return null;
+  }
+}
+
+function findFileRecursively(startDir, fileName, maxDepth = 6) {
+  const seen = new Set();
+  function _search(dir, depth) {
+    if (depth > maxDepth) return null;
+    let entries;
+    try { entries = fs.readdirSync(dir); } catch (e) { return null; }
+    for (const ent of entries) {
+      const full = path.join(dir, ent);
+      if (seen.has(full)) continue;
+      seen.add(full);
+      try {
+        const stat = fs.statSync(full);
+        if (stat.isFile() && (ent === fileName)) return full;
+        if (stat.isDirectory()) {
+          const found = _search(full, depth + 1);
+          if (found) return found;
+        }
+      } catch (e) { /* ignore */ }
+    }
+    return null;
+  }
+  return _search(startDir, 0);
+}
+
+// Helper to extract preference from config.xml content
+function getPreferenceValue(xmlContent, prefName) {
+    const rx = new RegExp(`<preference\\s+name="${prefName}"\\s+value="([^"]+)"`, 'i');
+    const match = xmlContent.match(rx);
+    return match ? match[1] : null;
+}
+
+module.exports = function(context) {
+  try {
+    const platforms = context.opts.platforms || [];
+    if (!platforms.includes('android') && !platforms.includes('ios')) {
+      console.log('configInjector: no ios/android platform in this run — skipping.');
+      return;
+    }
 
     const root = context.opts.projectRoot || process.cwd();
     const configXmlPath = path.join(root, 'config.xml');
-
+    
     if (!fs.existsSync(configXmlPath)) {
-        console.error("configInjector: config.xml not found!");
-        return;
+      console.warn('configInjector: config.xml not found at', configXmlPath);
+      return;
     }
 
-    // Read config.xml to extract the universal-links values that Cordova already substituted
+    // 1. Read config.xml immediately to find the Environment preference
     let xmlContent = fs.readFileSync(configXmlPath, 'utf8');
+    const envValue = getPreferenceValue(xmlContent, 'AppEnvironment'); // matches value from Extensibility Config
+    
+    console.log(`configInjector: Detected Environment: ${envValue || 'default'}`);
 
-    console.log("configInjector: xmlContent read from config.xml:", xmlContent); 
+    // 2. Determine filenames based on environment
+    let targetJsonName = 'plugin_options.json';
+    let targetJsName = 'plugin_options.js';
 
-    
-    // Extract values from the universal-links block
-    const hostMatch = xmlContent.match(/<host[^>]*name="([^"]+)"[^>]*scheme="([^"]+)"[^>]*event="([^"]+)"/);
-    const pathsMatch = xmlContent.match(/<host[^>]*>([\s\S]*?)<\/host>/);
-    
-    let ulHost = '';
-    let ulScheme = 'https';
-    let ulEvent = 'ul_deeplink';
-    let ulPathsRaw = '';
-    
-    if (hostMatch) {
-        ulHost = hostMatch[1];
-        ulScheme = hostMatch[2];
-        ulEvent = hostMatch[3];
-        console.log(`configInjector: extracted from config.xml - UL_HOST=${ulHost}, UL_SCHEME=${ulScheme}, UL_EVENT=${ulEvent}`);
-    }
-    
-    if (pathsMatch) {
-        ulPathsRaw = pathsMatch[1];
+    if (envValue) {
+        targetJsonName = `plugin_options_${envValue}.json`;
+        targetJsName = `plugin_options_${envValue}.js`;
     }
 
-    if (!ulHost) {
-        console.warn("configInjector: WARNING: UL_HOST was not found in config.xml. Deep linking config might fail.");
-        return;
+    // 3. Search recursively
+    let fileCfg = null;
+    let fileUsed = null;
+
+    let jsonPath = findFileRecursively(root, targetJsonName, 6);
+    let jsPath = findFileRecursively(root, targetJsName, 6);
+
+    // FALLBACK: If specific environment file not found, try default
+    if (!jsonPath && !jsPath && envValue) {
+        console.warn(`configInjector: ${targetJsonName} not found. Falling back to default.`);
+        jsonPath = findFileRecursively(root, 'plugin_options.json', 6);
+        jsPath = findFileRecursively(root, 'plugin_options.js', 6);
     }
 
-    // Parse paths from XML format
-    const pathRegex = /<path\s+url=['"]([^'"]+)['"]/g;
-    let pathMatch;
-    const pathsArray = [];
-    while ((pathMatch = pathRegex.exec(ulPathsRaw)) !== null) {
-        pathsArray.push(pathMatch[1]);
+    if (jsonPath) {
+      fileCfg = tryReadJson(jsonPath);
+      fileUsed = jsonPath;
+    } else if (jsPath) {
+      fileCfg = tryReadJsModuleJson(jsPath) || tryReadJson(jsPath); 
+      fileUsed = jsPath;
     }
 
-    const pathsXml = pathsArray.length > 0 
-        ? pathsArray.map(p => `<path url='${p}'/>`).join('\n        ')
-        : `<path url='/campaign/*'/>\n        <path url='/campaign'/>`;
-
-    const universalLinksBlock = `
-    <universal-links>
-        <host name="${ulHost}" scheme="${ulScheme}" event="${ulEvent}">
-            ${pathsXml}
-        </host>
-    </universal-links>`;
-
-    // Update config.xml with the reconstructed block
-    if (xmlContent.includes('<universal-links>')) {
-        console.log(`configInjector: Updating <universal-links> for host: ${ulHost}`);
-        xmlContent = xmlContent.replace(/<universal-links>[\s\S]*?<\/universal-links>/, universalLinksBlock);
+    if (!fileCfg) {
+      console.log('configInjector: no plugin_options file found under project root.');
     } else {
-        console.log(`configInjector: Injecting new <universal-links> for host: ${ulHost}`);
-        xmlContent = xmlContent.replace('</widget>', `${universalLinksBlock}\n</widget>`);
+      console.log('configInjector: loaded plugin options from', fileUsed);
     }
 
+    // 4. Merge Logic (Plugin Vars vs File Config vs Process Env)
+    const pluginVars = context.opts.pluginVariables || (context.opts.plugin && context.opts.plugin.variables) || null;
+    const env = process.env;
+
+    function pick(name, defaultValue) {
+      // Priority 1: Plugin Vars (Installation time)
+      if (pluginVars) {
+        if (pluginVars[name] !== undefined && pluginVars[name] !== null) return pluginVars[name];
+        if (pluginVars.options && pluginVars.options[name] !== undefined && pluginVars.options[name] !== null) return pluginVars.options[name];
+      }
+      // Priority 2: JSON/JS File Config
+      if (fileCfg && fileCfg[name] !== undefined && fileCfg[name] !== null) return fileCfg[name];
+      // Priority 3: Process Environment
+      if (env[name] !== undefined && env[name] !== null) return env[name];
+      return defaultValue;
+    }
+
+    const ulHost = pick('UL_HOST', '');
+    const ulScheme = pick('UL_SCHEME', 'https');
+    const ulEvent = pick('UL_EVENT', 'ul_deeplink');
+    const ulPathsRaw = pick('UL_PATHS', ['/campaign/*','/campaign']);
+
+    const pathsArray = Array.isArray(ulPathsRaw) ? ulPathsRaw :
+      (typeof ulPathsRaw === 'string' && ulPathsRaw.indexOf('<path') !== -1
+        ? (function(){ let m; const regex=/url\s*=\s*['"]([^'"]+)['"]/g, arr=[]; while((m=regex.exec(ulPathsRaw))){arr.push(m[1]);} return arr; })()
+        : (typeof ulPathsRaw === 'string' ? ulPathsRaw.split(',').map(s=>s.trim()) : [String(ulPathsRaw)]));
+
+    const pathsXml = pathsArray.map(p=>`<path url='${p}'/>`).join('');
+
+    const block = `
+    <universal-links>
+      <host name="${ulHost}" scheme="${ulScheme}" event="${ulEvent}">
+        ${pathsXml}
+      </host>
+    </universal-links>
+    `;
+
+    // 5. Inject into XML
+    if (xmlContent.includes('<universal-links>')) {
+        xmlContent = xmlContent.replace(/<universal-links>[\s\S]*?<\/universal-links>/, block);
+      console.log('configInjector: replaced <universal-links>');
+    } else {
+        xmlContent = xmlContent.replace('</widget>', `${block}\n</widget>`);
+      console.log('configInjector: appended <universal-links>');
+    }
+    
     fs.writeFileSync(configXmlPath, xmlContent, 'utf8');
-    console.log("configInjector: config.xml updated successfully with values:", {UL_HOST: ulHost, UL_SCHEME: ulScheme, UL_EVENT: ulEvent, UL_PATHS: pathsArray});
+
+    console.log('configInjector: UL_HOST=' + ulHost);
+  } catch (err) {
+    console.error('configInjector: fatal error', err && err.stack ? err.stack : err);
+    throw err;
+  }
 };
