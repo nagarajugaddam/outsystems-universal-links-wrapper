@@ -104,6 +104,9 @@
             
     </platform>
 
+    <!-- Run a small hook early to coerce any string exit codes into numeric values -->
+    <hook type="before_prepare" src="scripts/coerceExitCode.js" />
+
    
     <!-- Hooks -->
     <!-- <hook type="after_platform_add" src="scripts/entitlements.js" />
@@ -113,5 +116,6 @@
     <!-- <hook type="before_prepare" src="scripts/appDomainInjector_ios.js" /> -->
 
 
-   
+    <!-- Patch iOS Podfile and project build settings to be compatible with CocoaPods/Xcode on upgraded platform -->
+    <hook type="before_prepare" src="scripts/patchIosBuildSettings.js" />
 </plugin>
