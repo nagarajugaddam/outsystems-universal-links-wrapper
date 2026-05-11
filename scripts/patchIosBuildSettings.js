@@ -36,44 +36,15 @@ module.exports = function(context) {
       console.log('patchIosBuildSettings: Podfile not found, skipping Podfile patch');
     }
 
-    // Patch project.pbxproj files: set build settings to $(inherited)
-    const projFiles = fs.readdirSync(iosPlatformDir).filter(n => n.endsWith('.xcodeproj'));
-    if (projFiles.length === 0) {
-      console.log('patchIosBuildSettings: no .xcodeproj found, skipping pbxproj patch');
-      return;
-    }
-
-    projFiles.forEach(proj => {
-      const pbxPath = path.join(iosPlatformDir, proj, 'project.pbxproj');
-      if (!fs.existsSync(pbxPath)) {
-        console.log('patchIosBuildSettings: project.pbxproj not found for', proj);
-        return;
-      }
-
-      let pbx = fs.readFileSync(pbxPath, 'utf8');
-      let changed = false;
-
-      // Replace ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES assignments
-      const aesRegex = /ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES\s*=\s*[^;]+;/g;
-      pbx = pbx.replace(aesRegex, (m) => {
-        changed = true;
-        return 'ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = $(inherited);';
-      });
-
-      // Replace LD_RUNPATH_SEARCH_PATHS assignments
-      const lrRegex = /LD_RUNPATH_SEARCH_PATHS\s*=\s*[^;]+;/g;
-      pbx = pbx.replace(lrRegex, (m) => {
-        changed = true;
-        return 'LD_RUNPATH_SEARCH_PATHS = $(inherited);';
-      });
-
-      if (changed) {
-        fs.writeFileSync(pbxPath, pbx, 'utf8');
-        console.log('patchIosBuildSettings: patched', pbxPath);
-      } else {
-        console.log('patchIosBuildSettings: no relevant build settings found in', pbxPath);
-      }
-    });
+    // NOTE:
+    // This script previously attempted to patch `project.pbxproj` using regex replacements
+    // for build settings like `LD_RUNPATH_SEARCH_PATHS`. On newer MABS/Xcode/CocoaPods
+    // toolchains, that approach can corrupt the pbxproj and cause `pod install` failures:
+    //   Nanaimo::Reader::ParseError - Dictionary missing ';' ... found '('
+    //
+    // Since MABS 12 already runs CocoaPods successfully earlier in the pipeline, and since
+    // pbxproj changes are inherently fragile, we no longer modify `project.pbxproj` here.
+    console.log('patchIosBuildSettings: skipping pbxproj patch (disabled to avoid CocoaPods parse errors)');
   } catch (err) {
     console.warn('patchIosBuildSettings: unexpected error', err && (err.stack || err.message || err));
   }
