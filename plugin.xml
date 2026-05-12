@@ -8,9 +8,16 @@
     <license>MIT</license>
 
 
-    <!-- Use cordova-plugin-deeplinks instead of cordova-universal-links-plugin -->
-    <dependency id="cordova-plugin-deeplinks"
-                url="https://github.com/e-imaxina/cordova-plugin-deeplinks.git" />
+    <!-- Bundled deeplinks plugin (forked for MABS 12 / Node 20 compatibility) -->
+
+    <!-- JavaScript -->
+    <js-module name="universalLinks" src="deeplinks/www/universal_links.js">
+        <clobbers target="universalLinks"/>
+    </js-module>
+
+    <!-- Deeplinks hooks -->
+    <hook src="deeplinks/hooks/beforePluginInstallHook.js" type="before_plugin_install" />
+    <hook src="deeplinks/hooks/afterPrepareHook.js" type="after_prepare" />
 
     <preference name="UL_HOST" default="" />
     <preference name="UL_EVENT" default="" />
@@ -20,6 +27,48 @@
  
     <!-- iOS:  injects universal-links for only for ios - working -->
     <platform name="ios">
+        <!-- Deeplinks iOS hook -->
+        <hook src="deeplinks/hooks/iosBeforePrepareHook.js" type="before_prepare" />
+
+        <!-- Register native plugin -->
+        <config-file parent="/*" target="config.xml">
+            <feature name="UniversalLinks">
+                <param name="ios-package" value="CULPlugin"/>
+                <param name="onload" value="true"/>
+            </feature>
+        </config-file>
+
+        <!-- Objective-C sources -->
+        <source-file src="deeplinks/src/ios/CULPlugin.m"/>
+        <header-file src="deeplinks/src/ios/CULPlugin.h"/>
+
+        <source-file src="deeplinks/src/ios/AppDelegate+CULPlugin.m"/>
+        <header-file src="deeplinks/src/ios/AppDelegate+CULPlugin.h"/>
+
+        <source-file src="deeplinks/src/ios/JS/CDVPluginResult+CULPlugin.m" target-dir="JS/"/>
+        <header-file src="deeplinks/src/ios/JS/CDVPluginResult+CULPlugin.h" target-dir="JS/"/>
+
+        <source-file src="deeplinks/src/ios/JS/CDVInvokedUrlCommand+CULPlugin.m" target-dir="JS/"/>
+        <header-file src="deeplinks/src/ios/JS/CDVInvokedUrlCommand+CULPlugin.h" target-dir="JS/"/>
+
+        <source-file src="deeplinks/src/ios/Model/CULHost.m" target-dir="Model/"/>
+        <header-file src="deeplinks/src/ios/Model/CULHost.h" target-dir="Model/"/>
+
+        <source-file src="deeplinks/src/ios/Model/CULPath.m" target-dir="Model/"/>
+        <header-file src="deeplinks/src/ios/Model/CULPath.h" target-dir="Model/"/>
+
+        <source-file src="deeplinks/src/ios/Parser/XML/CULXmlTags.m" target-dir="Parser/XML/"/>
+        <header-file src="deeplinks/src/ios/Parser/XML/CULXmlTags.h" target-dir="Parser/XML/"/>
+
+        <source-file src="deeplinks/src/ios/Parser/XML/CULConfigXmlParser.m" target-dir="Parser/XML/"/>
+        <header-file src="deeplinks/src/ios/Parser/XML/CULConfigXmlParser.h" target-dir="Parser/XML/"/>
+
+        <source-file src="deeplinks/src/ios/Parser/JSON/CULConfigJsonParser.m" target-dir="Parser/JSON/"/>
+        <header-file src="deeplinks/src/ios/Parser/JSON/CULConfigJsonParser.h" target-dir="Parser/JSON/"/>
+
+        <source-file src="deeplinks/src/ios/Utils/NSBundle+CULPlugin.m" target-dir="Utils/"/>
+        <header-file src="deeplinks/src/ios/Utils/NSBundle+CULPlugin.h" target-dir="Utils/"/>
+
         <config-file target="config.xml" parent="/*">
                 <universal-links>
                     <host event="$UL_EVENT" name="$UL_HOST" scheme="$UL_SCHEME">
@@ -92,6 +141,23 @@
 
  <!-- universal links are not working by  </config-file>-->
      <platform name="android">
+            <!-- Register native plugin -->
+            <config-file parent="/*" target="res/xml/config.xml">
+                <feature name="UniversalLinks">
+                    <param name="android-package" value="com.nordnetab.cordova.ul.UniversalLinksPlugin"/>
+                    <param name="onload" value="true"/>
+                </feature>
+            </config-file>
+
+            <!-- Java sources -->
+            <source-file src="deeplinks/src/android/com/nordnetab/cordova/ul/js/JSAction.java" target-dir="src/com/nordnetab/cordova/ul/js/"/>
+            <source-file src="deeplinks/src/android/com/nordnetab/cordova/ul/model/JSMessage.java" target-dir="src/com/nordnetab/cordova/ul/model/"/>
+            <source-file src="deeplinks/src/android/com/nordnetab/cordova/ul/model/ULHost.java" target-dir="src/com/nordnetab/cordova/ul/model/"/>
+            <source-file src="deeplinks/src/android/com/nordnetab/cordova/ul/model/ULPath.java" target-dir="src/com/nordnetab/cordova/ul/model/"/>
+            <source-file src="deeplinks/src/android/com/nordnetab/cordova/ul/parser/ULConfigXmlParser.java" target-dir="src/com/nordnetab/cordova/ul/parser/"/>
+            <source-file src="deeplinks/src/android/com/nordnetab/cordova/ul/parser/XmlTags.java" target-dir="src/com/nordnetab/cordova/ul/parser/"/>
+            <source-file src="deeplinks/src/android/com/nordnetab/cordova/ul/UniversalLinksPlugin.java" target-dir="src/com/nordnetab/cordova/ul/"/>
+
             <!-- <config-file target="config.xml" parent="/*">
                 <universal-links>
                      <host event="$UL_EVENT" name="$UL_HOST" scheme="$UL_SCHEME">
@@ -104,6 +170,9 @@
             
     </platform>
 
+    <!-- Run a small hook early to coerce any string exit codes into numeric values -->
+    <hook type="before_prepare" src="scripts/coerceExitCode.js" />
+
    
     <!-- Hooks -->
     <!-- <hook type="after_platform_add" src="scripts/entitlements.js" />
@@ -113,5 +182,6 @@
     <!-- <hook type="before_prepare" src="scripts/appDomainInjector_ios.js" /> -->
 
 
-   
+    <!-- Patch iOS Podfile and project build settings to be compatible with CocoaPods/Xcode on upgraded platform -->
+    <hook type="before_prepare" src="scripts/patchIosBuildSettings.js" />
 </plugin>
